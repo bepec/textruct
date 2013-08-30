@@ -143,6 +143,13 @@ struct SequenceElementParser
          MemberElement<Optional<Type>, OptionalRule<Type, TypeRule> >(parent, reference) {}
    };
 
+   template<class Type, class TypeRule>
+   struct ArrayMemberElement: public MemberElement<std::vector<Type>, ArrayRule<Type, TypeRule> > 
+   {
+      ArrayMemberElement(SequenceElementParser& parent, std::vector<Type> Struct::* reference):
+         MemberElement<std::vector<Type>, ArrayRule<Type, TypeRule> >(parent, reference) {}
+   };
+
    std::vector< IMemberElement* > mMembers;
    
    void registerMember(IMemberElement* m)

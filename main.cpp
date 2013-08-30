@@ -143,6 +143,35 @@ void testArrayRule()
    assert(3 == array[2]);
 }
 
+struct StructWithArray
+{
+   int n;
+   std::vector<int> an;
+};
+
+struct StructWithArrayParser: public SequenceElementParser<StructWithArray>
+{
+   MemberElement<int, NumberRule> n;
+   ArrayMemberElement<int, NumberRule> an;
+
+   StructWithArrayParser():
+      n(*this, &StructWithArray::n),
+      an(*this, &StructWithArray::an) {}
+};
+
+void testStructWithArrayParser()
+{
+   size_t read;
+   StructWithArray s;
+   StructWithArrayParser parser;
+
+   assert(ResultOk == parser.fromString(s, "1 2, 3, 4", read));
+   assert(9 == read);
+   assert(1 == s.n);
+   assert(3 == s.an.size());
+   assert(4 == s.an[2]);
+}
+
 int main(int argc, char* argv[])
 {
    testStructNumber();
@@ -151,6 +180,7 @@ int main(int argc, char* argv[])
    testStaticString();
    testStructWithStaticText();
    testArrayRule();
+   testStructWithArrayParser();
 
    puts("ok");
 }
