@@ -172,6 +172,36 @@ void testStructWithArrayParser()
    assert(4 == s.an[2]);
 }
 
+struct NestedStruct
+{
+   int n;
+   S s;
+};
+
+struct NestedStructParser: public ObjectParser<NestedStruct>
+{
+   MemberElement<int, NumberRule> n;
+   ObjectMemberElement<S, SParser> s;
+
+   NestedStructParser():
+      n(*this, &NestedStruct::n),
+      s(*this, &NestedStruct::s)
+   {}
+};
+
+void testNestedStructParser()
+{
+   size_t read;
+   NestedStruct ns;
+   NestedStructParser parser;
+
+   assert(ResultOk == parser.fromString(ns, "3 2 1", read));
+   assert(5 == read);
+   assert(3 == ns.n);
+   assert(2 == ns.s.n1);
+   assert(1 == ns.s.n2);
+};
+
 int main(int argc, char* argv[])
 {
    testStructNumber();
@@ -181,6 +211,7 @@ int main(int argc, char* argv[])
    testStructWithStaticText();
    testArrayRule();
    testStructWithArrayParser();
+   testNestedStructParser();
 
    puts("ok");
 }

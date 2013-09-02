@@ -15,7 +15,7 @@ struct ObjectParser
    {
       virtual Result fromString(Struct& parent, const std::string& text, size_t& read)=0;
    };
-
+   
    template<class Rule>
    struct BaseElement: public IMemberElement
    {
@@ -48,7 +48,7 @@ struct ObjectParser
    };
 
    template<class Type, class TypeRule>
-   struct OptionalMemberElement: public MemberElement<Optional<Type>, OptionalRule<Type, TypeRule> > 
+   struct OptionalMemberElement: public MemberElement<Optional<Type>, OptionalRule<Type, TypeRule> >
    {
       OptionalMemberElement(ObjectParser& parent, Optional<Type> Struct::* reference):
          MemberElement<Optional<Type>, OptionalRule<Type, TypeRule> >(parent, reference) {}
@@ -59,6 +59,24 @@ struct ObjectParser
    {
       ArrayMemberElement(ObjectParser& parent, std::vector<Type> Struct::* reference):
          MemberElement<std::vector<Type>, ArrayRule<Type, TypeRule> >(parent, reference) {}
+   };
+
+   template<class Type, class TypeParser>
+   struct ObjectMemberElement: public IMemberElement
+   {
+      TypeParser parser;
+      Type Struct::* mpReference;
+
+      ObjectMemberElement(ObjectParser& parent, Type Struct::* reference):
+         mpReference(reference)
+      {
+         parent.registerMember(this);
+      }
+
+      Result fromString(Struct& parent, const std::string& text, size_t& read)
+      {
+         return parser.fromString(parent.*mpReference, text, read);
+      }
    };
 
    std::vector< IMemberElement* > mMembers;
