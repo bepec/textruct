@@ -9,7 +9,7 @@
 
 
 template<class Struct>
-struct SequenceElementParser
+struct ObjectParser
 {
    struct IMemberElement
    {
@@ -19,7 +19,7 @@ struct SequenceElementParser
    template<class Rule>
    struct BaseElement: public IMemberElement
    {
-      BaseElement(SequenceElementParser& parent)
+      BaseElement(ObjectParser& parent)
       {
          parent.registerMember(this);
       }
@@ -35,7 +35,7 @@ struct SequenceElementParser
    {
       Type Struct::* mpReference;
 
-      MemberElement(SequenceElementParser& parent, Type Struct::* reference):
+      MemberElement(ObjectParser& parent, Type Struct::* reference):
          mpReference(reference)
       {
          parent.registerMember(this);
@@ -50,14 +50,14 @@ struct SequenceElementParser
    template<class Type, class TypeRule>
    struct OptionalMemberElement: public MemberElement<Optional<Type>, OptionalRule<Type, TypeRule> > 
    {
-      OptionalMemberElement(SequenceElementParser& parent, Optional<Type> Struct::* reference):
+      OptionalMemberElement(ObjectParser& parent, Optional<Type> Struct::* reference):
          MemberElement<Optional<Type>, OptionalRule<Type, TypeRule> >(parent, reference) {}
    };
 
    template<class Type, class TypeRule>
    struct ArrayMemberElement: public MemberElement<std::vector<Type>, ArrayRule<Type, TypeRule> > 
    {
-      ArrayMemberElement(SequenceElementParser& parent, std::vector<Type> Struct::* reference):
+      ArrayMemberElement(ObjectParser& parent, std::vector<Type> Struct::* reference):
          MemberElement<std::vector<Type>, ArrayRule<Type, TypeRule> >(parent, reference) {}
    };
 
@@ -68,7 +68,7 @@ struct SequenceElementParser
       mMembers.push_back(m);
    }
 
-   SequenceElementParser() {}
+   ObjectParser() {}
    
    Result fromString(Struct& destination, const std::string& text, size_t& read)
    {

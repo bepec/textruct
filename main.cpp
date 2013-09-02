@@ -11,7 +11,7 @@ struct S
 
 NumberRule numberElementParser;
 
-struct SParser: public SequenceElementParser<S>
+struct SParser: public ObjectParser<S>
 {
    MemberElement<int, NumberRule> n1;
    MemberElement<int, NumberRule> n2;
@@ -63,7 +63,7 @@ struct StructWithOptional
    Optional<int> n2;
 };
 
-struct StructWithOptionalParser: public SequenceElementParser<StructWithOptional>
+struct StructWithOptionalParser: public ObjectParser<StructWithOptional>
 {
    MemberElement<int, NumberRule> n1;
    OptionalMemberElement<int, NumberRule> n2;
@@ -106,7 +106,7 @@ void testStaticString()
    assert(ResultError == StaticStringHello::fromString("hell", read));
 }
 
-struct ParserWithStaticText: public SequenceElementParser<S>
+struct ParserWithStaticText: public ObjectParser<S>
 {
    BaseElement<StaticStringRule<Hello> > s;
    MemberElement<int, NumberRule> n;
@@ -149,7 +149,7 @@ struct StructWithArray
    std::vector<int> an;
 };
 
-struct StructWithArrayParser: public SequenceElementParser<StructWithArray>
+struct StructWithArrayParser: public ObjectParser<StructWithArray>
 {
    MemberElement<int, NumberRule> n;
    ArrayMemberElement<int, NumberRule> an;
