@@ -90,4 +90,13 @@ struct ArrayRule
 };
 
 
+template<class Type, class Parser>
+struct ObjectRule
+{
+   static Result fromString(Parser& parser, Type& destination, const std::string& text, size_t& read)
+   {
+      return parser.fromString(destination, text, read);
+   }
+};
+
 #endif
