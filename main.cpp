@@ -181,6 +181,56 @@ void testEnum()
    assert(ResultError == ERule::fromString(e, "Four", read));
 };
 
+struct RtspAudioCodecs
+{
+   typedef enum { AAC, AC3, LPCM } AudioCodecType;
+   static const std::string AudioCodecList[];
+
+   struct Codec
+   {
+      AudioCodecType type;
+      unsigned int mask;
+      unsigned int latency;
+   };
+
+   Optional<std::vector<Codec> > codecs;
+};
+
+const std::string RtspAudioCodecs::AudioCodecList[] = { "AAC", "AC3", "LPCM" };
+
+void testRtspAudioCodecs()
+{
+   typedef MemberSequenceRule<RtspAudioCodecs::Codec,
+      MemberRule<RtspAudioCodecs::Codec,
+                 RtspAudioCodecs::AudioCodecType,
+                 &RtspAudioCodecs::Codec::type,
+                 EnumRule<RtspAudioCodecs::AudioCodecType,
+                          RtspAudioCodecs::AudioCodecList, 3> >,
+      MemberSequenceRule<RtspAudioCodecs::Codec,
+         MemberRule<RtspAudioCodecs::Codec, unsigned int, &RtspAudioCodecs::Codec::mask, HexRule>,
+         MemberRule<RtspAudioCodecs::Codec, unsigned int, &RtspAudioCodecs::Codec::latency, HexRule>
+   > > RtspAudioCodecsCodecRule; 
+
+   typedef MemberRule<RtspAudioCodecs,
+                      Optional<std::vector<RtspAudioCodecs::Codec> >,
+                      &RtspAudioCodecs::codecs,
+                      OptionalRule<std::vector<RtspAudioCodecs::Codec>,
+                                   ArrayRule<RtspAudioCodecs::Codec,
+                                             RtspAudioCodecsCodecRule>
+   > > RtspAudioCodecsRule;
+                        
+   RtspAudioCodecs codecs;
+   size_t read;
+
+   assert(ResultOk == RtspAudioCodecsRule::fromString(codecs, "LPCM 00000003 01", read));
+   assert(16 == read);
+   assert(true == codecs.codecs.present);
+   assert(1 == codecs.codecs.content.size());
+   assert(RtspAudioCodecs::LPCM == codecs.codecs.content[0].type);
+   assert(3 == codecs.codecs.content[0].mask);
+   assert(1 == codecs.codecs.content[0].latency);
+}
+
 int main(int argc, char* argv[])
 {
    testStructNumber();
@@ -192,6 +242,7 @@ int main(int argc, char* argv[])
    testStructWithArrayParser();
    testNestedStructParser();
    testEnum();
+   testRtspAudioCodecs();
 
    puts("ok");
 }

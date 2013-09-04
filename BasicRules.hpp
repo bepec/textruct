@@ -21,6 +21,19 @@ struct NumberRule
 };
 
 
+struct HexRule
+{
+   static Result fromString(unsigned& destination, const std::string& text, size_t& read)
+   {
+      const char *start = text.c_str();
+      char *end;
+      destination = strtol(start, &end, 16);
+      read = end - start;
+      return ResultOk;
+   }
+};
+
+
 template <class ContentType, class ContentRule>
 struct OptionalRule
 {
