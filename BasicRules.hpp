@@ -90,12 +90,22 @@ struct ArrayRule
 };
 
 
-template<class Type, class Parser>
-struct ObjectRule
+template<typename Enum, const std::string StringList[], size_t StringListSize>
+struct EnumRule
 {
-   static Result fromString(Parser& parser, Type& destination, const std::string& text, size_t& read)
+   static Result fromString(Enum& destination, const std::string& text, size_t& read)
    {
-      return parser.fromString(destination, text, read);
+      Result result = ResultError;
+      for (size_t i = 0; result != ResultOk && i < StringListSize; i++)
+      {
+         if (text.substr(0, StringList[i].length()) == StringList[i])
+         {
+            destination = static_cast<Enum>(i);
+            result = ResultOk;
+            read = StringList[i].size();
+         }
+      }
+      return result;
    }
 };
 

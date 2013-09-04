@@ -160,6 +160,27 @@ void testNestedStructParser()
    assert(1 == s.s.n2);
 }
 
+typedef enum { One, Two, Three } E;
+extern const std::string se[] = { "One", "Two", "Three" };
+
+void testEnum()
+{
+   typedef EnumRule<E, se, 3> ERule;
+
+   E e;
+   size_t read;
+
+   assert(ResultOk == ERule::fromString(e, "Two", read));
+   assert(3 == read);
+   assert(Two == e);
+
+   assert(ResultOk == ERule::fromString(e, "Three", read));
+   assert(5 == read);
+   assert(Three == e);
+
+   assert(ResultError == ERule::fromString(e, "Four", read));
+};
+
 int main(int argc, char* argv[])
 {
    testStructNumber();
@@ -170,6 +191,7 @@ int main(int argc, char* argv[])
    testArrayRule();
    testStructWithArrayParser();
    testNestedStructParser();
+   testEnum();
 
    puts("ok");
 }
