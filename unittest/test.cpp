@@ -1,6 +1,6 @@
-#include <cassert>
-#include <cstdio>
-#include <vector>
+#define BOOST_TEST_MODULE TestRules
+
+#include <boost/test/unit_test.hpp>
 #include "ObjectParser.hpp"
 
 struct S
@@ -9,7 +9,7 @@ struct S
    int n2;
 };
 
-void testStructNumber()
+BOOST_AUTO_TEST_CASE( testStructNumber )
 {
    typedef MemberSequenceRule<S,
       MemberRule<S, int, &S::n1, NumberRule>,
@@ -19,26 +19,26 @@ void testStructNumber()
    S s;
    size_t size;
 
-   assert(ResultOk == SRule::fromString(s, "1 13", size));
-   assert(1 == s.n1);
-   assert(13 == s.n2);
-   assert(4 == size);
+   BOOST_CHECK(ResultOk == SRule::fromString(s, "1 13", size));
+   BOOST_CHECK(1 == s.n1);
+   BOOST_CHECK(13 == s.n2);
+   BOOST_CHECK(4 == size);
 }
 
-void testOptionalNumber()
+BOOST_AUTO_TEST_CASE( testOptionalNumber )
 {
    Optional<int> on;
    typedef OptionalRule<int, NumberRule> OptionalNumberRule;
    size_t read;
 
-   assert(ResultOk == OptionalNumberRule::fromString(on, "13", read));
-   assert(true == on.present);
-   assert(13 == on.content);
-   assert(2 == read);
+   BOOST_CHECK(ResultOk == OptionalNumberRule::fromString(on, "13", read));
+   BOOST_CHECK(true == on.present);
+   BOOST_CHECK(13 == on.content);
+   BOOST_CHECK(2 == read);
 
-   assert(ResultOk == OptionalNumberRule::fromString(on, "none", read));
-   assert(false == on.present);
-   assert(4 == read);
+   BOOST_CHECK(ResultOk == OptionalNumberRule::fromString(on, "none", read));
+   BOOST_CHECK(false == on.present);
+   BOOST_CHECK(4 == read);
 }
 
 struct StructWithOptional
@@ -47,7 +47,7 @@ struct StructWithOptional
    Optional<int> n2;
 };
 
-void testStructWithOptionalNumber()
+BOOST_AUTO_TEST_CASE( testStructWithOptionalNumber )
 {
    typedef MemberSequenceRule<StructWithOptional,
       MemberRule<StructWithOptional, int, &StructWithOptional::n1, NumberRule>,
@@ -57,31 +57,31 @@ void testStructWithOptionalNumber()
    StructWithOptional s;
    size_t read;
 
-   assert(ResultOk == StructWithOptionalRule::fromString(s, "19 86", read));
-   assert(19 == s.n1);
-   assert(true == s.n2.present);
-   assert(86 == s.n2.content);
-   assert(5 == read);
+   BOOST_CHECK(ResultOk == StructWithOptionalRule::fromString(s, "19 86", read));
+   BOOST_CHECK(19 == s.n1);
+   BOOST_CHECK(true == s.n2.present);
+   BOOST_CHECK(86 == s.n2.content);
+   BOOST_CHECK(5 == read);
 
-   assert(ResultOk == StructWithOptionalRule::fromString(s, "19 none", read));
-   assert(19 == s.n1);
-   assert(false == s.n2.present);
-   assert(7 == read);
+   BOOST_CHECK(ResultOk == StructWithOptionalRule::fromString(s, "19 none", read));
+   BOOST_CHECK(19 == s.n1);
+   BOOST_CHECK(false == s.n2.present);
+   BOOST_CHECK(7 == read);
 }
 
 extern const std::string Hello("hello");
 
-void testStaticString()
+BOOST_AUTO_TEST_CASE( testStaticString )
 {
    size_t read;
    typedef StaticStringRule<Hello> StaticStringHello;
    
-   assert(ResultOk == StaticStringHello::fromString("hello", read));
-   assert(5 == read);
-   assert(ResultError == StaticStringHello::fromString("hell", read));
+   BOOST_CHECK(ResultOk == StaticStringHello::fromString("hello", read));
+   BOOST_CHECK(5 == read);
+   BOOST_CHECK(ResultError == StaticStringHello::fromString("hell", read));
 }
 
-void testStructWithStaticText()
+BOOST_AUTO_TEST_CASE( testStructWithStaticText )
 {
    typedef MemberSequenceRule<S,
       VoidMemberRule<S, StaticStringRule<Hello> >,
@@ -91,25 +91,25 @@ void testStructWithStaticText()
    size_t read;
    S s;
 
-   assert(ResultOk == SRule::fromString(s, "hello 2", read));
-   assert(7 == read);
-   assert(2 == s.n1);
+   BOOST_CHECK(ResultOk == SRule::fromString(s, "hello 2", read));
+   BOOST_CHECK(7 == read);
+   BOOST_CHECK(2 == s.n1);
 
-   assert(ResultError == SRule::fromString(s, "hello", read));
-   assert(ResultError == SRule::fromString(s, "hell 1", read));
+   BOOST_CHECK(ResultError == SRule::fromString(s, "hello", read));
+   BOOST_CHECK(ResultError == SRule::fromString(s, "hell 1", read));
 }
 
-void testArrayRule()
+BOOST_AUTO_TEST_CASE( testArrayRule )
 {
    size_t read;
    std::vector<int> array;
    typedef ArrayRule<int, NumberRule> NumberArrayRule;
 
-   assert(ResultOk == NumberArrayRule::fromString(array, "1, 2, 3", read));
-   assert(7 == read);
-   assert(3 == array.size());
-   assert(1 == array[0]);
-   assert(3 == array[2]);
+   BOOST_CHECK(ResultOk == NumberArrayRule::fromString(array, "1, 2, 3", read));
+   BOOST_CHECK(7 == read);
+   BOOST_CHECK(3 == array.size());
+   BOOST_CHECK(1 == array[0]);
+   BOOST_CHECK(3 == array[2]);
 }
 
 struct StructWithArray
@@ -118,7 +118,7 @@ struct StructWithArray
    std::vector<int> an;
 };
 
-void testStructWithArrayParser()
+BOOST_AUTO_TEST_CASE( testStructWithArrayParser )
 {
    typedef MemberSequenceRule<StructWithArray,
       MemberRule<StructWithArray, int, &StructWithArray::n, NumberRule>,
@@ -128,11 +128,11 @@ void testStructWithArrayParser()
    size_t read;
    StructWithArray s;
 
-   assert(ResultOk == StructWithArrayRule::fromString(s, "1 2, 3, 4", read));
-   assert(9 == read);
-   assert(1 == s.n);
-   assert(3 == s.an.size());
-   assert(4 == s.an[2]);
+   BOOST_CHECK(ResultOk == StructWithArrayRule::fromString(s, "1 2, 3, 4", read));
+   BOOST_CHECK(9 == read);
+   BOOST_CHECK(1 == s.n);
+   BOOST_CHECK(3 == s.an.size());
+   BOOST_CHECK(4 == s.an[2]);
 }
 
 struct NestedStruct
@@ -141,7 +141,7 @@ struct NestedStruct
    S s;
 };
 
-void testNestedStructParser()
+BOOST_AUTO_TEST_CASE( testNestedStructParser )
 {
    typedef MemberSequenceRule<NestedStruct,
       MemberRule<NestedStruct, int, &NestedStruct::n, NumberRule>,
@@ -153,32 +153,32 @@ void testNestedStructParser()
    NestedStruct s;
    size_t read;
 
-   assert(ResultOk == NestedStructRule::fromString(s, "3 2 1", read));
-   assert(5 == read);
-   assert(3 == s.n);
-   assert(2 == s.s.n1);
-   assert(1 == s.s.n2);
+   BOOST_CHECK(ResultOk == NestedStructRule::fromString(s, "3 2 1", read));
+   BOOST_CHECK(5 == read);
+   BOOST_CHECK(3 == s.n);
+   BOOST_CHECK(2 == s.s.n1);
+   BOOST_CHECK(1 == s.s.n2);
 }
 
 typedef enum { One, Two, Three } E;
 extern const std::string se[] = { "One", "Two", "Three" };
 
-void testEnum()
+BOOST_AUTO_TEST_CASE( testEnum )
 {
    typedef EnumRule<E, se, 3> ERule;
 
    E e;
    size_t read;
 
-   assert(ResultOk == ERule::fromString(e, "Two", read));
-   assert(3 == read);
-   assert(Two == e);
+   BOOST_CHECK(ResultOk == ERule::fromString(e, "Two", read));
+   BOOST_CHECK(3 == read);
+   BOOST_CHECK(Two == e);
 
-   assert(ResultOk == ERule::fromString(e, "Three", read));
-   assert(5 == read);
-   assert(Three == e);
+   BOOST_CHECK(ResultOk == ERule::fromString(e, "Three", read));
+   BOOST_CHECK(5 == read);
+   BOOST_CHECK(Three == e);
 
-   assert(ResultError == ERule::fromString(e, "Four", read));
+   BOOST_CHECK(ResultError == ERule::fromString(e, "Four", read));
 };
 
 struct RtspAudioCodecs
@@ -198,7 +198,7 @@ struct RtspAudioCodecs
 
 const std::string RtspAudioCodecs::AudioCodecList[] = { "AAC", "AC3", "LPCM" };
 
-void testRtspAudioCodecs()
+BOOST_AUTO_TEST_CASE( testRtspAudioCodecs )
 {
    typedef MemberSequenceRule<RtspAudioCodecs::Codec,
       MemberRule<RtspAudioCodecs::Codec,
@@ -222,27 +222,12 @@ void testRtspAudioCodecs()
    RtspAudioCodecs codecs;
    size_t read;
 
-   assert(ResultOk == RtspAudioCodecsRule::fromString(codecs, "LPCM 00000003 01", read));
-   assert(16 == read);
-   assert(true == codecs.codecs.present);
-   assert(1 == codecs.codecs.content.size());
-   assert(RtspAudioCodecs::LPCM == codecs.codecs.content[0].type);
-   assert(3 == codecs.codecs.content[0].mask);
-   assert(1 == codecs.codecs.content[0].latency);
+   BOOST_CHECK(ResultOk == RtspAudioCodecsRule::fromString(codecs, "LPCM 00000003 01", read));
+   BOOST_CHECK(16 == read);
+   BOOST_CHECK(true == codecs.codecs.present);
+   BOOST_CHECK(1 == codecs.codecs.content.size());
+   BOOST_CHECK(RtspAudioCodecs::LPCM == codecs.codecs.content[0].type);
+   BOOST_CHECK(3 == codecs.codecs.content[0].mask);
+   BOOST_CHECK(1 == codecs.codecs.content[0].latency);
 }
 
-int main(int argc, char* argv[])
-{
-   testStructNumber();
-   testOptionalNumber();
-   testStructWithOptionalNumber();
-   testStaticString();
-   testStructWithStaticText();
-   testArrayRule();
-   testStructWithArrayParser();
-   testNestedStructParser();
-   testEnum();
-   testRtspAudioCodecs();
-
-   puts("ok");
-}
