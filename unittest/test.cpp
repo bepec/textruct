@@ -19,10 +19,10 @@ BOOST_AUTO_TEST_CASE( testStructNumber )
    S s;
    size_t size;
 
-   BOOST_CHECK(ResultOk == SRule::fromString(s, "1 13", size));
-   BOOST_CHECK(1 == s.n1);
-   BOOST_CHECK(13 == s.n2);
-   BOOST_CHECK(4 == size);
+   BOOST_CHECK_EQUAL(SRule::fromString(s, "1 13", size), ResultOk);
+   BOOST_CHECK_EQUAL(s.n1, 1);
+   BOOST_CHECK_EQUAL(s.n2, 13);
+   BOOST_CHECK_EQUAL(size, 4);
 }
 
 BOOST_AUTO_TEST_CASE( testOptionalNumber )
@@ -31,14 +31,14 @@ BOOST_AUTO_TEST_CASE( testOptionalNumber )
    typedef OptionalRule<int, NumberRule> OptionalNumberRule;
    size_t read;
 
-   BOOST_CHECK(ResultOk == OptionalNumberRule::fromString(on, "13", read));
-   BOOST_CHECK(true == on.present);
-   BOOST_CHECK(13 == on.content);
-   BOOST_CHECK(2 == read);
+   BOOST_CHECK_EQUAL(OptionalNumberRule::fromString(on, "13", read), ResultOk);
+   BOOST_CHECK_EQUAL(on.present, true);
+   BOOST_CHECK_EQUAL(on.content, 13);
+   BOOST_CHECK_EQUAL(read, 2);
 
-   BOOST_CHECK(ResultOk == OptionalNumberRule::fromString(on, "none", read));
-   BOOST_CHECK(false == on.present);
-   BOOST_CHECK(4 == read);
+   BOOST_CHECK_EQUAL(OptionalNumberRule::fromString(on, "none", read), ResultOk);
+   BOOST_CHECK_EQUAL(on.present, false);
+   BOOST_CHECK_EQUAL(read, 4);
 }
 
 struct StructWithOptional
@@ -57,16 +57,16 @@ BOOST_AUTO_TEST_CASE( testStructWithOptionalNumber )
    StructWithOptional s;
    size_t read;
 
-   BOOST_CHECK(ResultOk == StructWithOptionalRule::fromString(s, "19 86", read));
-   BOOST_CHECK(19 == s.n1);
-   BOOST_CHECK(true == s.n2.present);
-   BOOST_CHECK(86 == s.n2.content);
-   BOOST_CHECK(5 == read);
+   BOOST_CHECK_EQUAL(StructWithOptionalRule::fromString(s, "19 86", read), ResultOk);
+   BOOST_CHECK_EQUAL(s.n1, 19);
+   BOOST_CHECK_EQUAL(s.n2.present, true);
+   BOOST_CHECK_EQUAL(s.n2.content, 86);
+   BOOST_CHECK_EQUAL(read, 5);
 
-   BOOST_CHECK(ResultOk == StructWithOptionalRule::fromString(s, "19 none", read));
-   BOOST_CHECK(19 == s.n1);
-   BOOST_CHECK(false == s.n2.present);
-   BOOST_CHECK(7 == read);
+   BOOST_CHECK_EQUAL(StructWithOptionalRule::fromString(s, "19 none", read), ResultOk);
+   BOOST_CHECK_EQUAL(s.n1, 19);
+   BOOST_CHECK_EQUAL(s.n2.present, false);
+   BOOST_CHECK_EQUAL(read, 7);
 }
 
 extern const std::string Hello("hello");
@@ -76,9 +76,9 @@ BOOST_AUTO_TEST_CASE( testStaticString )
    size_t read;
    typedef StaticStringRule<Hello> StaticStringHello;
    
-   BOOST_CHECK(ResultOk == StaticStringHello::fromString("hello", read));
-   BOOST_CHECK(5 == read);
-   BOOST_CHECK(ResultError == StaticStringHello::fromString("hell", read));
+   BOOST_CHECK_EQUAL(StaticStringHello::fromString("hello", read), ResultOk);
+   BOOST_CHECK_EQUAL(read, 5);
+   BOOST_CHECK_EQUAL(StaticStringHello::fromString("hell", read), ResultError);
 }
 
 BOOST_AUTO_TEST_CASE( testStructWithStaticText )
@@ -91,12 +91,12 @@ BOOST_AUTO_TEST_CASE( testStructWithStaticText )
    size_t read;
    S s;
 
-   BOOST_CHECK(ResultOk == SRule::fromString(s, "hello 2", read));
-   BOOST_CHECK(7 == read);
-   BOOST_CHECK(2 == s.n1);
+   BOOST_CHECK_EQUAL(SRule::fromString(s, "hello 2", read), ResultOk);
+   BOOST_CHECK_EQUAL(read, 7);
+   BOOST_CHECK_EQUAL(s.n1, 2);
 
-   BOOST_CHECK(ResultError == SRule::fromString(s, "hello", read));
-   BOOST_CHECK(ResultError == SRule::fromString(s, "hell 1", read));
+   BOOST_CHECK_EQUAL(SRule::fromString(s, "hello", read), ResultError);
+   BOOST_CHECK_EQUAL(SRule::fromString(s, "hell 1", read), ResultError);
 }
 
 BOOST_AUTO_TEST_CASE( testArrayRule )
@@ -105,11 +105,11 @@ BOOST_AUTO_TEST_CASE( testArrayRule )
    std::vector<int> array;
    typedef ArrayRule<int, NumberRule> NumberArrayRule;
 
-   BOOST_CHECK(ResultOk == NumberArrayRule::fromString(array, "1, 2, 3", read));
-   BOOST_CHECK(7 == read);
-   BOOST_CHECK(3 == array.size());
-   BOOST_CHECK(1 == array[0]);
-   BOOST_CHECK(3 == array[2]);
+   BOOST_CHECK_EQUAL(NumberArrayRule::fromString(array, "1, 2, 3", read), ResultOk);
+   BOOST_CHECK_EQUAL(read, 7);
+   BOOST_CHECK_EQUAL(array.size(), 3);
+   BOOST_CHECK_EQUAL(array[0], 1);
+   BOOST_CHECK_EQUAL(array[2], 3);
 }
 
 struct StructWithArray
@@ -128,11 +128,11 @@ BOOST_AUTO_TEST_CASE( testStructWithArrayParser )
    size_t read;
    StructWithArray s;
 
-   BOOST_CHECK(ResultOk == StructWithArrayRule::fromString(s, "1 2, 3, 4", read));
-   BOOST_CHECK(9 == read);
-   BOOST_CHECK(1 == s.n);
-   BOOST_CHECK(3 == s.an.size());
-   BOOST_CHECK(4 == s.an[2]);
+   BOOST_CHECK_EQUAL(StructWithArrayRule::fromString(s, "1 2, 3, 4", read), ResultOk);
+   BOOST_CHECK_EQUAL(read, 9);
+   BOOST_CHECK_EQUAL(s.n, 1);
+   BOOST_CHECK_EQUAL(s.an.size(), 3);
+   BOOST_CHECK_EQUAL(s.an[2], 4);
 }
 
 struct NestedStruct
@@ -153,11 +153,11 @@ BOOST_AUTO_TEST_CASE( testNestedStructParser )
    NestedStruct s;
    size_t read;
 
-   BOOST_CHECK(ResultOk == NestedStructRule::fromString(s, "3 2 1", read));
-   BOOST_CHECK(5 == read);
-   BOOST_CHECK(3 == s.n);
-   BOOST_CHECK(2 == s.s.n1);
-   BOOST_CHECK(1 == s.s.n2);
+   BOOST_CHECK_EQUAL(NestedStructRule::fromString(s, "3 2 1", read), ResultOk);
+   BOOST_CHECK_EQUAL(read, 5);
+   BOOST_CHECK_EQUAL(s.n, 3);
+   BOOST_CHECK_EQUAL(s.s.n1, 2);
+   BOOST_CHECK_EQUAL(s.s.n2, 1);
 }
 
 typedef enum { One, Two, Three } E;
@@ -170,15 +170,15 @@ BOOST_AUTO_TEST_CASE( testEnum )
    E e;
    size_t read;
 
-   BOOST_CHECK(ResultOk == ERule::fromString(e, "Two", read));
-   BOOST_CHECK(3 == read);
-   BOOST_CHECK(Two == e);
+   BOOST_CHECK_EQUAL(ERule::fromString(e, "Two", read), ResultOk);
+   BOOST_CHECK_EQUAL(read, 3);
+   BOOST_CHECK_EQUAL(e, Two);
 
-   BOOST_CHECK(ResultOk == ERule::fromString(e, "Three", read));
-   BOOST_CHECK(5 == read);
-   BOOST_CHECK(Three == e);
+   BOOST_CHECK_EQUAL(ERule::fromString(e, "Three", read), ResultOk);
+   BOOST_CHECK_EQUAL(read, 5);
+   BOOST_CHECK_EQUAL(e, Three);
 
-   BOOST_CHECK(ResultError == ERule::fromString(e, "Four", read));
+   BOOST_CHECK_EQUAL(ERule::fromString(e, "Four", read), ResultError);
 };
 
 struct RtspAudioCodecs
@@ -222,12 +222,12 @@ BOOST_AUTO_TEST_CASE( testRtspAudioCodecs )
    RtspAudioCodecs codecs;
    size_t read;
 
-   BOOST_CHECK(ResultOk == RtspAudioCodecsRule::fromString(codecs, "LPCM 00000003 01", read));
-   BOOST_CHECK(16 == read);
-   BOOST_CHECK(true == codecs.codecs.present);
-   BOOST_CHECK(1 == codecs.codecs.content.size());
-   BOOST_CHECK(RtspAudioCodecs::LPCM == codecs.codecs.content[0].type);
-   BOOST_CHECK(3 == codecs.codecs.content[0].mask);
-   BOOST_CHECK(1 == codecs.codecs.content[0].latency);
+   BOOST_CHECK_EQUAL(RtspAudioCodecsRule::fromString(codecs, "LPCM 00000003 01", read), ResultOk);
+   BOOST_CHECK_EQUAL(read, 16);
+   BOOST_CHECK_EQUAL(codecs.codecs.present, true);
+   BOOST_CHECK_EQUAL(codecs.codecs.content.size(), 1);
+   BOOST_CHECK_EQUAL(codecs.codecs.content[0].type, RtspAudioCodecs::LPCM);
+   BOOST_CHECK_EQUAL(codecs.codecs.content[0].mask, 3);
+   BOOST_CHECK_EQUAL(codecs.codecs.content[0].latency, 1);
 }
 
