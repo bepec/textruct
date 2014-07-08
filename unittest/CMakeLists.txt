@@ -5,7 +5,7 @@ project(unittest)
 add_definitions(-DBOOST_TEST_DYN_LINK)
 add_definitions(-std=c++11)
 
-set(SOURCE_EXE test.cpp)
+set(SOURCE_EXE test.cc)
 
 add_executable(test-textruct ${SOURCE_EXE})
 
