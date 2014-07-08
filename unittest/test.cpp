@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( testEnum )
    BOOST_CHECK_EQUAL(ERule::fromString(e, "Four", read), ResultError);
 };
 
-struct RtspAudioCodecs
+struct AudioCodecs
 {
    typedef enum { AAC, AC3, LPCM } AudioCodecType;
    static const std::string AudioCodecList[];
@@ -196,37 +196,36 @@ struct RtspAudioCodecs
    Optional<std::vector<Codec> > codecs;
 };
 
-const std::string RtspAudioCodecs::AudioCodecList[] = { "AAC", "AC3", "LPCM" };
+const std::string AudioCodecs::AudioCodecList[] = { "AAC", "AC3", "LPCM" };
 
-BOOST_AUTO_TEST_CASE( testRtspAudioCodecs )
+BOOST_AUTO_TEST_CASE( testAudioCodecs )
 {
-   typedef MemberSequenceRule<RtspAudioCodecs::Codec,
-      MemberRule<RtspAudioCodecs::Codec,
-                 RtspAudioCodecs::AudioCodecType,
-                 &RtspAudioCodecs::Codec::type,
-                 EnumRule<RtspAudioCodecs::AudioCodecType,
-                          RtspAudioCodecs::AudioCodecList, 3> >,
-      MemberSequenceRule<RtspAudioCodecs::Codec,
-         MemberRule<RtspAudioCodecs::Codec, unsigned int, &RtspAudioCodecs::Codec::mask, HexRule>,
-         MemberRule<RtspAudioCodecs::Codec, unsigned int, &RtspAudioCodecs::Codec::latency, HexRule>
-   > > RtspAudioCodecsCodecRule; 
+   typedef MemberSequenceRule<AudioCodecs::Codec,
+      MemberRule<AudioCodecs::Codec,
+                 AudioCodecs::AudioCodecType,
+                 &AudioCodecs::Codec::type,
+                 EnumRule<AudioCodecs::AudioCodecType,
+                          AudioCodecs::AudioCodecList, 3> >,
+      MemberRule<AudioCodecs::Codec, unsigned int, &AudioCodecs::Codec::mask, HexRule>,
+      MemberRule<AudioCodecs::Codec, unsigned int, &AudioCodecs::Codec::latency, HexRule>
+   > AudioCodecsCodecRule; 
 
-   typedef MemberRule<RtspAudioCodecs,
-                      Optional<std::vector<RtspAudioCodecs::Codec> >,
-                      &RtspAudioCodecs::codecs,
-                      OptionalRule<std::vector<RtspAudioCodecs::Codec>,
-                                   ArrayRule<RtspAudioCodecs::Codec,
-                                             RtspAudioCodecsCodecRule>
-   > > RtspAudioCodecsRule;
+   typedef MemberRule<AudioCodecs,
+                      Optional<std::vector<AudioCodecs::Codec> >,
+                      &AudioCodecs::codecs,
+                      OptionalRule<std::vector<AudioCodecs::Codec>,
+                                   ArrayRule<AudioCodecs::Codec,
+                                             AudioCodecsCodecRule>
+   > > AudioCodecsRule;
                         
-   RtspAudioCodecs codecs;
+   AudioCodecs codecs;
    size_t read;
 
-   BOOST_CHECK_EQUAL(RtspAudioCodecsRule::fromString(codecs, "LPCM 00000003 01", read), ResultOk);
+   BOOST_CHECK_EQUAL(AudioCodecsRule::fromString(codecs, "LPCM 00000003 01", read), ResultOk);
    BOOST_CHECK_EQUAL(read, 16);
    BOOST_CHECK_EQUAL(codecs.codecs.present, true);
    BOOST_CHECK_EQUAL(codecs.codecs.content.size(), 1);
-   BOOST_CHECK_EQUAL(codecs.codecs.content[0].type, RtspAudioCodecs::LPCM);
+   BOOST_CHECK_EQUAL(codecs.codecs.content[0].type, AudioCodecs::LPCM);
    BOOST_CHECK_EQUAL(codecs.codecs.content[0].mask, 3);
    BOOST_CHECK_EQUAL(codecs.codecs.content[0].latency, 1);
 }

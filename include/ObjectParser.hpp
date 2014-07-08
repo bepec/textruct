@@ -19,6 +19,7 @@ struct MemberRule
    }
 };
 
+
 template<class Struct, class Rule>
 struct VoidMemberRule
 {
@@ -30,28 +31,53 @@ struct VoidMemberRule
    }
 };
 
-template<class Struct, class Rule, class NextRule>
-struct MemberSequenceRule
+
+template<typename Struct, typename... Args>
+struct MemberSequenceRule;
+
+
+template <typename Struct, typename FirstRule>
+struct MemberSequenceRule<Struct, FirstRule>
 {
    static Result fromString(Struct& destination,
                             const std::string& text,
                             size_t& read)
    {
       read = 0;
-      if (ResultOk != Rule::fromString(destination, text, read))
+
+      if (ResultOk != FirstRule::fromString(destination, text, read))
          return ResultError;
-      if (text.length() > read && text[read] == ' ')
+      return ResultOk;
+   }
+};
+
+
+template <typename Struct, typename FirstRule, typename... NextRules>
+struct MemberSequenceRule<Struct, FirstRule, NextRules...>
+{
+   static Result fromString(Struct& destination,
+                            const std::string& text,
+                            size_t& read)
+   {
+      read = 0;
+
+      if (ResultOk != FirstRule::fromString(destination, text, read))
+         return ResultError;
+
+      else if (text.length() > read && text[read] == ' ')
       {
          read++;
          size_t elementRead = 0; 
          std::string textRemain = text.substr(read);
-         if (ResultOk == NextRule::fromString(destination, textRemain, elementRead))
+         if (ResultOk == MemberSequenceRule<Struct, NextRules...>::fromString(destination, textRemain, elementRead))
          {
             read += elementRead;
          }
          else return ResultError;
       }
+
       else return ResultError;
+
       return ResultOk;
    }
 };
